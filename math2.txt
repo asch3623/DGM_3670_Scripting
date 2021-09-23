@@ -1,0 +1,198 @@
+global proc float Add(float $numbers[]){
+    float $sum = 0;
+    for($i=0; $i<size($numbers); $i++){
+        $sum+= $numbers[$i];
+    }
+    return $sum;
+}
+
+global proc float Subtract(float $numbers[]){
+    float $difference = $numbers[0];
+    for($i=0; $i<size($numbers); $i++){
+        $difference -= $numbers[$i+1];
+    }
+    return $difference;
+}
+
+global proc float Multiply(float $numbers[]){
+    float $multiple = $numbers[0];
+    for($i=0; $i<size($numbers)-1; $i++){
+        $multiple *= $numbers[$i+1];
+    }
+    return $multiple;
+}
+
+Multiply({5,3,3});
+
+global proc float Divide(float $numbers[]){
+    float $factor = $numbers[0];
+    for($i=0; $i<size($numbers)-1; $i++){
+        $factor /= $numbers[$i+1];
+    }
+    return $factor;
+}
+
+Divide({100,10,2});
+
+global proc float Raise(float $numbers[]){    
+        
+    return `pow $numbers[0] $numbers[1]`;
+}
+Raise({2,4});
+
+global proc float RaiseTo(float $number, float $power){
+    
+        float $total = $number;
+        for ($i=1; $i<$power; $i++){
+            $total*=$number;
+        }
+    return $total;
+}
+
+RaiseTo(2,4);
+
+global proc float Mean(float $numbers[]){
+    float $sum = 0;
+    for($i=0; $i<size($numbers); $i++){
+        $sum+= $numbers[$i];
+    }
+    $sum /= size($numbers);
+    return $sum;
+}
+
+Mean({51,51,75});
+
+global proc float Median(float $numbers[]){
+    float $temp = size($numbers);
+    float $middle, $highVal, $lowVal;
+    $temp = $temp % 2;
+    
+    if ($temp == 1){
+        $temp = size($numbers);
+        $temp /= 2;
+        $temp+= 0.5;
+        $middle = $numbers[int($temp)-1];
+    }
+    else {
+        $temp = size($numbers);
+        $temp /= 2;
+        $highVal = $numbers[int($temp)];
+        $lowVal = $numbers[int($temp)-1];
+        $middle = ($highVal + $lowVal) /2;
+    }
+    
+    return $middle ;
+}
+
+Median({4,5,7,2,1});
+
+/* OLD FUNCTION I WROTE FOR "MODE." Scrapped it because it only ever returned ONE value.
+
+global proc float Mode(float $numbers[]){
+    int $countNumbers = 0;
+    int $b;
+     float $numTimes[];
+    for($i=0; $i<size($numbers); $i++){
+       $numTimes[$i] = $numbers[$i];
+    }
+    
+    
+    for($i=0; $i<size($numbers); $i++){
+        float $selectedNumber = $numbers[$i];
+        
+        for($a=0; $a<size($numbers); $a++){
+            if ($numbers[$a] == $selectedNumber){
+            $countNumbers ++;
+            }
+        }
+        $numTimes[$i] = $countNumbers;
+        $countNumbers = 0;
+    }
+    print($numTimes);
+    for($i=0; $i<size($numbers); $i++){
+        $selectedNumber = $numTimes[$i];
+        print($selectedNumber);
+        
+        if ($selectedNumber < $numTimes[$i+1]){
+            $selectedNumber =  $numTimes[$i+1];
+            $b = $i;
+        }
+    }
+    print($b);
+    $b = $numbers[$b+1];
+    return $b;
+}
+Mode({4, 2, 3, 4, 2, 1, 2}); */
+
+// ********
+
+/* This function is HIGHLY convoluted but I love it because I made it through blood, sweat, and tears. I can only understand it by staring at it for a ridiculous amount of time, and that in itself is ALSO RIDICULOUS considering the fact that /I/ wrote it out.
+I probably could've used MEL reference for something to condense this. Oh well. Whatever. It works with MULTIPLE MODES and returns multiple values. God bless.
+*/
+global proc string Mode(float $numbers[]){
+	int $count, $t;
+	float $counterArray[], $tempArray[];
+    float $afterSorting[] = sort($numbers);
+    string $twoModes;
+    $count = 0;
+    int $newAmount;
+
+for ($i = 0; $i<size($numbers); $i++){
+	$t = $afterSorting[$i];
+// gets amounts of numbers and puts them in an array.
+        if ($i != 0){
+	        if ($t != $afterSorting[$i-1]){
+                floatArrayInsertAtIndex($i+1, $counterArray, $count);
+                $count = 0;
+                }
+            if ($t == $afterSorting[($i-1)] && $i == size($numbers)-1){
+            $count++;
+             floatArrayInsertAtIndex($i+1, $counterArray, $count);
+                }
+                 else if ($i == size($numbers)-1){
+             floatArrayInsertAtIndex($i+1, $counterArray, 1);
+                }
+                }
+                $count++;
+}
+//gets the value of the most repeated number(s).
+for($d = 0; $d<size($counterArray); $d++){
+        if ($d == 0){
+            $t = $counterArray[$d];
+            }
+        if ($d != 0){
+            if ($counterArray[$d] > $counterArray[$d-1]){
+                $t = $counterArray[$d];}
+                }        
+            }
+            print ($t);
+            
+// uses that value to find where the number is located in the original array. (Writing this out, I realize I'm basically just reversing my last "for loop" BUT this is good for multiple modes.)            
+ $count = 1;           
+for ($i = 0; $i<size($counterArray); $i++){
+    
+if ($counterArray[$i] == $t){
+    for ($b = 1; $b<=$count; $b++){
+       $newAmount += $counterArray[$b-1]; 
+    }
+    floatArrayInsertAtIndex($i+1, $tempArray, $afterSorting[$newAmount-1]);
+    $count = $b-1;
+    $newAmount = 0;
+}       
+$count++;
+}
+// Checks if there are multiple modes and returns their values.
+if (size($tempArray) > 1){
+    for ($c = 0; $c<size($tempArray); $c++){
+        string $newString = $tempArray[$c]+ ", ";
+       $twoModes = stringAddPrefix($twoModes, $newString);
+       }
+     return $twoModes;
+     } 
+       else {
+        $twoModes = $tempArray[0];
+       
+        return $twoModes;
+}
+}
+Mode({5, 4, 3, 4, 7, 44, 7, 5});
