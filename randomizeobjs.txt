@@ -1,0 +1,20 @@
+global proc float RandomizeItems(int $amount, float $xMin, float $xMax, float $yMin, float $yMax, float $zMin, float $zMax){
+    float $randX, $randY, $randZ;
+    string $objs[];
+    $objs = `ls -sl`;
+    for ($i = 0; $i<size($objs); $i++)
+    {
+        for ($a = 0; $a<$amount; $a++)
+        {
+            $randX = rand($xMin, $xMax);
+            $randY = rand($yMin, $yMax);
+            $randZ = rand($zMin, $zMax);
+            
+            duplicate $objs[$i];
+            select $objs[$i];
+            move $randX $randY $randZ;
+        }
+    }
+    return 0;
+}
+RandomizeItems(13, -20, 40, -40, 10, 3, 50);
